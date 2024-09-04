@@ -1,0 +1,345 @@
+<?php require_once $this->main_layouts . "headers.phtml"; ?>
+<script type="text/javascript">
+    var pagina = "<?= $this->getPath(); ?>";
+    var permissao = "<?= $this->permissao_ref; ?>";
+    var controller = "<?= $this->getPath(); ?>/save";
+    var retorno = "<?= $this->retorno; ?>";
+</script>
+</head>
+
+<body ng-app='nova' ng-controller="EditCtrl as ctrl" ng-init='ctrl.onInit()' style='display:none'>
+    <?php require_once $this->main_layouts . "header.phtml"; ?>
+    <div id="wrapper">
+        <?php require_once $this->main_layouts . "sidebar.phtml"; ?>
+        <div id="content" class="page-content clearfix">
+            <div class="contentwrapper">
+                <div class="heading">
+                    <h3><?= $this->module_title; ?></h3>
+                    <ul class="breadcrumb">
+                        <li>Você está aqui:</li>
+                        <li> <a href="#" class="tip" title="Painel"> <i class="s16 icomoon-icon-screen-2"></i> </a> <span class="divider"> <i class="s16 icomoon-icon-arrow-right-3"></i> </span> </li>
+                        <li> <a class="tip" title="<?= $this->module_title; ?>" href="<?= $this->module_link; ?>"> <i class="s16 <?= $this->module_icon; ?>"></i> </a> </li>
+                        <span class="divider">
+                            <i class="s16 icomoon-icon-arrow-right-3"></i>
+                        </span>
+                        <li class="active">Registro</li>
+                    </ul>
+                </div>
+                <form class="form-horizontal group-border">
+                    <input type="hidden" name="id" value="<?= $this->id; ?>" />
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="panel panel-default toggle">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">SGA</h4>
+                                </div>
+                                <div class="panel-body" style="display: none;">
+                                    <div class="form-group">
+                                        <label class="col-lg-2 col-md-3 control-label">Busca placa <i class="fa fa-question-circle cursor" data-container="body" data-toggle="popover" data-placement="top" data-content="Ao criar um evento e digitar a placa ele buscará a placa no banco de dados do SGA" title="" data-original-title="Funcionamento"></i></label>
+                                        <div class="col-lg-10 col-md-9">
+                                            <div class="toggle-custom">
+                                                <label class="toggle" data-on="ON" data-off="OFF">
+                                                    <input type="checkbox" ng-model='ctrl.data.sga_consulta_placa' ng-true-value="1" ng-false-value="0">
+                                                    <span class="button-checkbox"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 col-md-3 control-label">Adicionar associado <i class="fa fa-question-circle cursor" data-container="body" data-toggle="popover" data-placement="top" data-content="Ao ativar indicação aparecerá um popup para enviar ao SGA" title="" data-original-title="Funcionamento"></i></label>
+                                        <div class="col-lg-10 col-md-9">
+                                            <div class="toggle-custom">
+                                                <label class="toggle" data-on="ON" data-off="OFF">
+                                                    <input type="checkbox" ng-model='ctrl.data.sga_insere_associado' ng-true-value="1" ng-false-value="0">
+                                                    <span class="button-checkbox"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label" for="sga_token"> Token
+                                            <i class="fa fa-question-circle cursor" data-container="body" data-toggle="popover" data-placement="botton" data-content="<p>O funcionamento correto necessita da configuração do usuário, dando permissões de Regionais, Cooperativas, Bancos, Tipos de Veículos e Negar Cadastro/Fotos.</p> <p>Para gerar um token no SGA, você precisará acessar o menu <strong>Área Cliente</strong> - <strong>APIs</strong> - <strong>Gerenciar APIs</strong>, clicar no botão <strong>+Novo</strong>, no campo de <strong>Interveniente</strong> selecionar <strong>Associação</strong>, definir um nome para <strong>Apelido</strong> ao Token, colocar como <strong>SIM</strong> para <strong>Permitir Acesso</strong>, <strong>marcar todas as opções</strong> e clicar em <strong>salvar</strong>. Em seguida, será liberado um botão para copiar o novo Token gerado.</p>" title="" data-original-title=""></i></label>
+                                        <div class="col-lg-10">
+                                            <input class="form-control" ng-model='ctrl.data.sga_token' />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="panel panel-default toggle">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">WhatsApp </h4>
+                                </div>
+                                <div class="panel-body" style="display: none;">
+                                    <table cellpadding="0" cellspacing="0" border="0" class="tabletools table table-striped table-bordered" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th width="100px" class="center">Id</th>
+                                                <th class="tal">Aparelho</th>
+                                                <th class="tal">Telefone</th>
+                                                <th class="tal">Tipo</th>
+                                                <th class="tal">Modulos</th>
+                                                <th width='150px' class="center">Ação</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($this->whats as $registro) : ?>
+                                                <tr>
+                                                    <td class="center"><a href="<?= $this->getPath(); ?>/whats/id/<?= $registro['id']; ?>"><?= $registro['id']; ?></a></td>
+                                                    <td class="tal"><a href="<?= $this->getPath(); ?>/whats/id/<?= $registro['id']; ?>"><?= $registro['usuario']; ?></a></td>
+                                                    <td class="tal"><a href="<?= $this->getPath(); ?>/whats/id/<?= $registro['id']; ?>"><?= $registro['telefone']; ?></a></td>
+                                                    <td class="tal"><a href="<?= $this->getPath(); ?>/whats/id/<?= $registro['id']; ?>"><?= match ($registro['tipo']) {
+                                                                                                                                            "ileva" => "Ileva",
+                                                                                                                                            "zaptechs" => "ZapTechs",
+                                                                                                                                            "leadszapp" => "LeadsZapp",
+                                                                                                                                            "business" => "Business (oficial)",
+                                                                                                                                            default => $tipo
+                                                                                                                                        } ?></a></td>
+                                                    <td class="tal"><a href="<?= $this->getPath(); ?>/whats/id/<?= $registro['id']; ?>"><?= $registro['modulos']; ?></a></td>
+                                                    <td class="center">
+                                                        <a href="<?= $this->getPath(); ?>/whats/id/<?= $registro['id']; ?>"><img src="<?= $this->main_template; ?>images/<?= ($registro['stats'] == 0) ? "status_vermelho" : "status_verde" ?>.png" alt="Ativar"></a>
+                                                        <a href="<?= $this->getPath(); ?>/whats/id/<?= $registro['id']; ?>"><i class="s12 icomoon-icon-pencil"></i></a>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="panel panel-default toggle">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">Nibo</h4>
+                                </div>
+                                <div class="panel-body" style="display: none;">
+                                    <div class="form-group">
+                                        <label class="col-lg-2 col-md-3 control-label">Status <i class="fa fa-question-circle cursor" data-container="body" data-toggle="popover" data-placement="top" data-content="Ao faturar uma ordem de compra os lançamentos são agendados no sistema da nibo." title="" data-original-title="Funcionamento"></i></label>
+                                        <div class="col-lg-10 col-md-9">
+                                            <div class="toggle-custom">
+                                                <label class="toggle" data-on="ON" data-off="OFF">
+                                                    <input type="checkbox" ng-model='ctrl.data.nibo_status' ng-true-value="1" ng-false-value="0">
+                                                    <span class="button-checkbox"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label" for="nibo_token">Token <i class="fa fa-question-circle cursor" data-container="body" data-toggle="popover" data-placement="top" data-content="Para obter o token no sistema do nibo acesse: empresa, configurações e integração com API." title="" data-original-title="Obter"></i> </label>
+                                        <div class="col-lg-8">
+                                            <input class="form-control" ng-model='ctrl.data.nibo_token' />
+                                        </div>
+                                        <div class="col-lg-offset-2">
+                                            <button class="btn btn-info" ng-click='ctrl.verifyNiboToken()'>Verificar token</button>
+                                        </div>
+                                    </div>
+                                    <div class='form-group'>
+                                        <label class='col-lg-2 control-label'>Selecione a conta padrão</label>
+                                        <div class='col-lg-10'>
+                                            <select class='form-control' ng-model='ctrl.data.nibo_accountId' ng-options="item.id as item.name for item in ctrl.niboContas"></select>
+                                        </div>
+                                    </div>
+                                    <div class='form-group'>
+                                        <label class='col-lg-2 control-label'>Selecione a categoria padrão para ordens de compra em eventos</label>
+                                        <div class='col-lg-10'>
+                                            <select class='form-control' ng-model='ctrl.data.nibo_categoryId' ng-options="item.id as item.name for item in ctrl.niboCategorias | filter:{type:'out'}"></select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="panel panel-default toggle">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">Sistema BEM+</h4>
+                                </div>
+                                <div class="panel-body" style="display: none;">
+                                    <div class="form-group">
+                                        <label class="col-lg-2 col-md-3 control-label">Status </label>
+                                        <div class="col-lg-10 col-md-9">
+                                            <div class="toggle-custom">
+                                                <label class="toggle" data-on="ON" data-off="OFF">
+                                                    <input type="checkbox" ng-model='ctrl.data.bemmais_status' ng-true-value="1" ng-false-value="0">
+                                                    <span class="button-checkbox"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label" for="sga_token"> Token
+                                            <i class="fa fa-question-circle cursor" data-container="body" data-toggle="popover" data-placement="top" data-content="Para obter o token de acesso entre em contato com o suporte Bem+"></i></label>
+                                        <div class="col-lg-10">
+                                            <input class="form-control" ng-model='ctrl.data.bemmais_token' />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="panel panel-default toggle">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">Siprov</h4>
+                                </div>
+                                <div class="panel-body" style="display: none;">
+                                    <div class="form-group">
+                                        <label class="col-lg-2 col-md-3 control-label">Status </label>
+                                        <div class="col-lg-10 col-md-9">
+                                            <div class="toggle-custom">
+                                                <label class="toggle" data-on="ON" data-off="OFF">
+                                                    <input type="checkbox" ng-model='ctrl.data.siprov_status' ng-true-value="1" ng-false-value="0">
+                                                    <span class="button-checkbox"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="panel panel-default toggle">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">API integração Ileva</h4>
+                                </div>
+                                <div class="panel-body" style="display: none;">
+                                    <?php if ($this->permissions($this->permissao_ref, 'editar')) : ?>
+                                        <div class="form-group">
+                                            <div class=" col-md-12">
+                                                <a type="button" class="btn btn-info" href="<?= $this->getPath(); ?>/api">Adicionar</a>
+                                            </div>
+                                        </div>
+                                    <?php endif; ?>
+                                    <table cellpadding="0" cellspacing="0" border="0" class="tabletools table table-striped table-bordered" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th width="100px" class="center">id</th>
+                                                <th class="tal">Descrição</th>
+                                                <th class="tal">Dt expiração</th>
+                                                <th width='150px' class="center">Ação</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($this->apis as $registro) : ?>
+                                                <tr>
+                                                    <td class="center"><a href="<?= $this->getPath(); ?>/api/id/<?= $registro['id']; ?>"><?= $registro['id']; ?></a></td>
+                                                    <td class="tal"><a href="<?= $this->getPath(); ?>/api/id/<?= $registro['id']; ?>"><?= $registro['descricao']; ?></a></td>
+                                                    <td class="tal"><a href="<?= $this->getPath(); ?>/api/id/<?= $registro['id']; ?>"><?= $registro['dt_expiracao'] ?: "Não expira"; ?></a></td>
+                                                    <td class="center">
+                                                        <?php if ($registro['stats'] == 0) : ?>
+                                                            <a href="#" class="bt_system_stats" data-permit="<?= $this->permissao_ref; ?>" data-table="hbrd_adm_integration_api" data-action="ativar" data-id="<?= $registro['id']; ?>"><img src="<?= $this->main_template; ?>images/status_vermelho.png" alt="Ativar"></a>
+                                                        <?php else : ?>
+                                                            <a href="#" class="bt_system_stats" data-permit="<?= $this->permissao_ref; ?>" data-table="hbrd_adm_integration_api" data-action="desativar" data-id="<?= $registro['id']; ?>"><img src="<?= $this->main_template; ?>images/status_verde.png" alt="Desativar"></a>
+                                                        <?php endif; ?>
+                                                        <a href="<?= $this->getPath(); ?>/api/id/<?= $registro['id']; ?>"><i class="s12 icomoon-icon-pencil"></i></a>
+                                                        <a class="bt_system_delete" data-controller="<?= $this->getPath(); ?>" data-id="<?= $registro['id']; ?>" href="#"><i class="s12 icomoon-icon-remove"></i></a>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="panel panel-default toggle">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">WebAssist </h4>
+                                </div>
+                                <div class="panel-body" style="display: none;">
+                                    <table cellpadding="0" cellspacing="0" border="0" class="tabletools table table-striped table-bordered" width="100%">
+                                        <div class="form-group">
+                                            <label class="col-md-2 control-label">Status </label>
+                                            <div class="col-md-10">
+                                                <div class="toggle-custom">
+                                                    <label class="toggle" data-on="ON" data-off="OFF">
+                                                        <input type="checkbox" ng-model='ctrl.data.webassist_stats' ng-true-value="1" ng-false-value="0">
+                                                        <span class="button-checkbox"></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </table>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-2" for="web_assist">Url</label>
+                                        <div class="col-md-10">
+                                            <input class="form-control" autocomplete="off" ng-model='ctrl.data.webassist_url' />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-2" for="web_assist">Login</label>
+                                        <div class="col-md-10">
+                                            <input class="form-control" autocomplete="off" ng-model='ctrl.data.webassist_login' />
+                                        </div>
+                                    </div>
+                                    <div class='form-group'>
+                                        <label class='col-md-2 control-label'>Senha</label>
+                                        <div class='col-md-10'>
+                                            <input class="form-control" autocomplete="new-password" type="password" ng-model='ctrl.data.webassist_senha' />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php if ($this->permissions($this->permissao_ref, 'editar')) : ?>
+                        <div class="row">
+                            <div class="form-group">
+                                <div class="col-lg-10">
+                                    <button ng-click='ctrl.submitForm()' class="btn btn-info save-btn">Salvar alterações</button>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                </form>
+            </div>
+        </div>
+        <?php require_once $this->main_layouts . "footer.phtml"; ?>
+    </div>
+    <?php require_once $this->main_layouts . "plugins.phtml"; ?>
+    <script src='https://cdn.socket.io/4.0.1/socket.io.js'></script>
+    <script src='https://raw.githack.com/KeeeX/qrcodejs/master/qrcode.js'></script>
+    <?php
+
+    use adm\classes\{Util}; ?>
+    <script type="text/javascript">
+        angular.module('nova', ['novaServices'])
+            .controller('EditCtrl', function($scope, $http, $sce, NS, $window) {
+                this.data = <?= Util::json_encode($this->registro); ?>;
+                this.niboContas = <?= Util::json_array_values($this->niboContas); ?>;
+                this.niboCategorias = <?= Util::json_array_values($this->niboCategorias); ?>;
+                this.whats = <?= Util::json_array_values($this->niboCategorias); ?>;
+                this.onInit = () => {
+                    this.data.leadszapp_bot = Number(this.data.leadszapp_bot);
+                    $('body').show();
+                }
+                this.submitForm = async () => {
+                    await NS.actionHandler($http.post("<?= $this->getPath(); ?>/save", this.data));
+                    location.reload();
+                }
+                this.verifyNiboToken = async () => {
+                    this.niboEmpresas = (await NS.actionHandler($http.get("<?= $this->getPath(); ?>/verifyNiboToken/token/" + this.data.nibo_token), 'body', 'Token válido !', 'Token inválido')).data.items;
+                    $scope.$digest();
+                }
+            })
+    </script>
+
+    <style>
+        button.save-btn {
+            margin-left: 15px;
+        }
+    </style>
+</body>
+
+</html>

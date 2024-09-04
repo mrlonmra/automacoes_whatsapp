@@ -1,0 +1,27 @@
+Instalação CODE Chat aaPanel
+
+1º aapanel instalado com Nginx e Pm2 com node 16.17.0 
+
+2º 
+
+git clone https://github.com/code-chat-br/whatsapp-api.git
+
+entrar na pasta whatsapp-api
+
+npm install 
+
+Edite o arquivo dentro da pasta src dev-env.yml para env.yml
+
+npm run start prod
+
+ctrl + C para parar a aplicação 
+
+pm2 start 'npm run start prod' --name CodeChat
+
+
+
+3º importar arquivo no N8N para criar a sessão
+
+4º Codigo limpa numero
+
+{{ $json["body"]["data"]["key"]["remoteJid"].split("@s.whatsapp.net") }}

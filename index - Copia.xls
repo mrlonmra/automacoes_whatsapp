@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>ZapTechs - Marlon</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+        integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct"
+        crossorigin="anonymous"></script>
+    <!-- Axios CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+    <h2>Gestão de Sessões</h2>
+    <hr>
+
+    <form id="myForm">
+        <nav>
+            <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                <button class="nav-link active" id="nav-1-tab" data-toggle="tab" data-target="#nav-1" type="button"
+                    role="tab" aria-controls="nav-1" aria-selected="true">Criar Sessões</button>
+                <button class="nav-link" id="nav-2-tab" data-toggle="tab" data-target="#nav-2" type="button" role="tab"
+                    aria-controls="nav-2" aria-selected="false">Capturar QrCode</button>
+                <button class="nav-link" id="nav-3-tab" data-toggle="tab" data-target="#nav-3" type="button" role="tab"
+                    aria-controls="nav-3" aria-selected="false">Logout Sessão</button>
+                <button class="nav-link" id="nav-3-tab" data-toggle="tab" data-target="#nav-4" type="button" role="tab"
+                    aria-controls="nav-3" aria-selected="false">Deletar Sessão</button>
+                <button class="nav-link" id="nav-4-tab" data-toggle="tab" data-target="#nav-5" type="button" role="tab"
+                    aria-controls="nav-6" aria-selected="false">Listar Sessões</button>
+            </div>
+        </nav>
+        <div class="tab-content" id="nav-tabContent">
+            <div class="tab-pane fade show active" id="nav-1" role="tabpanel" aria-labelledby="nav-1-tab">
+                <br>
+                <h4>Criar Sessões</h4>
+                <input style="width:20%" class="form-control" type="text" name="instanceName" id="createInstanceName"
+                    placeholder="Nome da Sessão">
+                <br>
+                <input style="width:20%" class="form-control" type="text" name="description" id="createDescription"
+                    placeholder="Descricao">
+                <br>
+                <input class="btn btn-success" type="button" onclick="criarSessao()" value="Criar Sessão" />
+                <br>
+                <div id="createResponse" class="mt-4"></div>
+                <hr>
+            </div>
+            <div class="tab-pane fade" id="nav-2" role="tabpanel" aria-labelledby="nav-2-tab">
+                <br>
+                <h4>Capturar QrCode</h4>
+                <input style="width:20%" class="form-control" type="text" name="connectInstanceName"
+                    id="connectInstanceName" placeholder="Insira a Sessão">
+                <br>
+                <input style="width:20%" class="form-control" type="text" name="connectToken" id="connectToken"
+                    placeholder="Insira o Token">
+                <br>
+                <input class="btn btn-success" type="button" onclick="capturarQR()" value="Capturar QrCode" />
+                <br>
+                <hr>
+               <div class="container mt-5">
+                  <div class="row" id="instanciasContainer"></div>
+               </div>
+            </div>
+            <div class="tab-pane fade" id="nav-3" role="tabpanel" aria-labelledby="nav-3-tab">
+                <br>
+                <h4>Logout Sessão</h4>
+                <input style="width:20%" class="form-control" type="text" name="instance" id="instance"
+                    placeholder="Insira a Sessão">
+                <br>
+                <input style="width:20%" class="form-control" type="text" name="token" id="token"
+                    placeholder="Insira o Token">
+                <br>
+                <input class="btn btn-success" type="button" onclick="logoutSessao()" value="Deslogar" />
+                <br>
+                <hr>
+                <div id="responseMessage" class="mt-4"></div>
+            </div>
+            <div class="tab-pane fade" id="nav-4" role="tabpanel" aria-labelledby="nav-3-tab">
+                <br>
+                <h4>Deletar Sessão</h4>
+                <input style="width:20%" class="form-control" type="text" name="instanceDelete" id="instanceDelete"
+                    placeholder="Insira a Sessão">
+                <br>
+                <input style="width:20%" class="form-control" type="text" name="tokenDelete" id="tokenDelete"
+                    placeholder="Insira o Token">
+                <br>
+                <input class="btn btn-success" type="button" onclick="deletarSessao()" value="Deletar" />
+                <br>
+                <hr>
+                <div id="responseMessageDelete" class="mt-4"></div>
+            </div>
+            <div class="tab-pane fade" id="nav-5" role="tabpanel" aria-labelledby="nav-5-tab">
+                <br>
+                <h4>Listar Sessões</h4>
+                <input class="btn btn-success" type="button" onclick="listaSessoes()" value="Listar" />
+                <br>
+                <hr>
+                <div id="instancesList"></div>
+            </div>
+        </div>
+    </form>
+    <hr>
+    <p>Desenvolvido por Marlon - ZapTechs</p>
+
+   <script src="https://cdn.socket.io/4.1.2/socket.io.min.js"></script>
+   <script>
+      const socket = io('http://marketingcomunica.com.br:8000');
+      const instanciasContainer = document.getElementById('instanciasContainer');
+
+      // Crie um objeto para armazenar as informações de cada instância
+      const instancias = {};
+
+      socket.on('qrcodeUpdated', (data) => {
+         console.log('Dados SOCKET:', data);
+
+         // Verifique se a mensagem do socket contém o Base64 da imagem
+         if (data) {
+            // Verifique se a instância já existe
+            if (!instancias[data.nomeInstancia]) {
+               // Se não existir, crie uma nova instância card
+               instancias[data.nomeInstancia] = document.createElement('div');
+               instancias[data.nomeInstancia].classList.add('col-md-4', 'mb-4');
+
+               // Crie um card Bootstrap
+               const card = document.createElement('div');
+               card.classList.add('card');
+
+               // Adicione a instância card ao contêiner de instâncias
+               instanciasContainer.appendChild(instancias[data.nomeInstancia]);
+               instancias[data.nomeInstancia].appendChild(card);
+            }
+
+            // Obtenha a instância existente ou a recém-criada
+            const inst = instancias[data.nomeInstancia].querySelector('.card');
+
+            // Crie uma nova imagem para cada instância
+            const imgElement = document.createElement('img');
+            imgElement.src = data.Base64QR;
+            imgElement.classList.add('card-img-top');
+
+            // Quando a imagem for carregada, remova a classe hidden
+            imgElement.onload = () => {
+               imgElement.classList.remove('hidden');
+            };
+
+            // Crie um card body
+            const cardBody = document.createElement('div');
+            cardBody.classList.add('card-body');
+
+            // Crie parágrafos para nome, status e contagem de QR Codes
+            const nomeInstancia = document.createElement('p');
+            nomeInstancia.classList.add('card-text');
+            nomeInstancia.textContent = "Nome da Instância: " + data.nomeInstancia;
+
+            const qrGerados = document.createElement('p');
+            qrGerados.classList.add('card-text');
+            qrGerados.textContent = "QR Codes Gerados: " + data.instancicaCountQR;
+
+            const statusInstancia = document.createElement('p');
+            statusInstancia.classList.add('card-text');
+            statusInstancia.textContent = "Status da Instância: " + data.instanciaStatus;
+
+            // Adicione os elementos ao card body
+            cardBody.appendChild(imgElement);
+            cardBody.appendChild(nomeInstancia);
+            cardBody.appendChild(statusInstancia);
+            cardBody.appendChild(qrGerados);
+
+            // Limpe o conteúdo existente e adicione o novo card body ao card
+            inst.innerHTML = '';
+            inst.appendChild(cardBody);
+         }
+      });
+   </script>
+    <script>
+        // Função para enviar a requisição cURL para criar instância
+        function criarSessao() {
+            var instanceName = $("#createInstanceName").val();
+            var description = $("#createDescription").val();
+
+            fetch('http://marketingcomunica.com.br:8084/instance/create', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'apikey': 'Negaazul1!'
+                },
+                body: JSON.stringify({
+                    instanceName: instanceName,
+                    description: description
+                })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erro ao enviar a requisição.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data.Auth.token);
+                    $("#createResponse").html('<div class="alert alert-success" role="alert"><span class="token">' + data.Auth.token + '</span></div>');
+                })
+                .catch(error => {
+                    $("#createResponse").html('<div class="alert alert-danger" role="alert">' + error.message + '</div>');
+                });
+        }
+
+        // Função para conectar a instância usando Axios
+        function capturarQR() {
+            const token = document.getElementById('connectToken').value;
+            const instance = document.getElementById('connectInstanceName').value;
+            const url = `http://marketingcomunica.com.br:8084/instance/connect/${instance}`;
+
+            axios.get(url, {
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+                .then(response => {
+                    const imagePreview = document.getElementById('connectImagePreview');
+                    imagePreview.src = response.data.base64;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function displayResponseMessage(response) {
+            console.log('displayResponseMessage called with:', response);
+
+            var responseDiv = document.getElementById('responseMessage');
+
+            if (response && response.error === false && response.message) {
+                // Success message
+                responseDiv.innerHTML = '<div class="alert alert-success" role="alert">' + response.message + '</div>';
+            } else if (response && response.error === true && response.message) {
+                // Error message
+                responseDiv.innerHTML = '<div class="alert alert-danger" role="alert">' + response.message + '</div>';
+            } else {
+                // Handle other cases or display a generic error message
+                responseDiv.innerHTML = '<div class="alert alert-danger" role="alert">Erro desconhecido</div>';
+            }
+        }
+
+
+        function displayResponseMessageDelete(response) {
+            console.log('displayResponseMessage called with:', response);
+
+            var responseDiv = document.getElementById('responseMessageDelete');
+
+            if (response && response.deletedAt) {
+                // Successful deletion message
+                responseDiv.innerHTML = '<div class="alert alert-success" role="alert">Excluído com sucesso em: ' + response.deletedAt + '</div>';
+            } else if (response && response.error === true && response.message) {
+                // Error message
+                responseDiv.innerHTML = '<div class="alert alert-danger" role="alert">' + response.message + '</div>';
+            } else {
+                // Handle other cases or display a generic error message
+                responseDiv.innerHTML = '<div class="alert alert-danger" role="alert">Erro desconhecido</div>';
+            }
+        }
+
+
+        function logoutSessao() {
+            // Get values from input fields
+            var instance = document.getElementById('instance').value;
+            var token = document.getElementById('token').value;
+
+            // URL of the DELETE request
+            var url = 'http://marketingcomunica.com.br:8084/instance/logout/' + instance;
+
+            // Headers for the request
+            var headers = {
+                'Accept': 'application/json',
+                'Authorization': 'Bearer ' + token
+            };
+
+            // Making the DELETE request using axios
+            axios.delete(url, { headers: headers })
+                .then(function (response) {
+                    console.log('DELETE Request Successful:', response.data);
+                    displayResponseMessage(response.data);
+                })
+                .catch(function (error) {
+                    console.error('Error making DELETE Request:', error);
+                    var errorMessage = error.response.data.message[0];
+                    displayResponseMessage({ error: true, message: errorMessage });
+                });
+        }
+
+        function deletarSessao() {
+            // Get values from input fields
+            var instance = document.getElementById('instanceDelete').value;
+            var token = document.getElementById('tokenDelete').value;
+
+            // URL of the DELETE request
+            var url = 'http://marketingcomunica.com.br:8084/instance/delete/' + instance + '?force=true';
+
+            // Headers for the request
+            var headers = {
+                'Accept': 'application/json',
+                'Authorization': 'Bearer ' + token
+            };
+
+            // Making the DELETE request using axios
+            axios.delete(url, { headers: headers })
+                .then(function (response) {
+                    console.log('DELETE Request Successful:', response.data);
+                    displayResponseMessageDelete(response.data);
+                })
+                .catch(function (error) {
+                    console.error('Error making DELETE Request:', error);
+                    var errorMessage = error.response.data.message[0];
+                    displayResponseMessageDelete({ error: true, message: errorMessage });
+                });
+        }
+
+
+        function statusSessao() {
+            // Implementação da lógica em JavaScript
+        }
+
+        function listaSessoes() {
+            // Função para listar instâncias usando Axios
+            const apiUrl = 'http://marketingcomunica.com.br:8084/instance/fetchInstances';
+            const apiKey = 'Negaazul1!';
+            const instancesListElement = document.getElementById('instancesList');
+
+            const config = {
+                headers: {
+                    'accept': 'application/json',
+                    'apikey': apiKey
+                }
+            };
+
+            axios.get(apiUrl, config)
+                .then(response => {
+                    const instances = response.data;
+
+                    instances.forEach(instance => {
+                        const instanceElement = document.createElement('div');
+                        instanceElement.classList.add('card', 'mt-2');
+                        instanceElement.innerHTML = `
+                    <div class="card-body">
+                        <h5 class="card-title">ID: ${instance.id}</h5>
+                        <p class="card-text">Name: ${instance.name}</p>
+                        <p class="card-text">Description: ${instance.description}</p>
+                        <p class="card-text">Connection Status: ${instance.connectionStatus}</p>
+                        <p class="card-text">${instance.Auth.token}</p>
+                        <p class="card-text">Webhook: ${instance.Webhook}</p>
+                    </div>
+                `;
+                        instancesListElement.appendChild(instanceElement);
+                    });
+                })
+                .catch(error => {
+                    console.error('Erro ao buscar instâncias:', error);
+                });
+
+        }
+    </script>
+
+</body>
+
+</html>

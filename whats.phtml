@@ -1,0 +1,479 @@
+<?php require_once $this->main_layouts . "headers.phtml"; ?>
+<script type="text/javascript">
+    var pagina = "<?= $this->getPath(); ?>";
+    var permissao = "<?= $this->permissao_ref; ?>";
+    var controller = "<?= $this->getPath(); ?>/save";
+    var retorno = "<?= $this->retorno; ?>";
+</script>
+</head>
+
+<body ng-app='nova' ng-controller="EditCtrl as ctrl" ng-init='ctrl.onInit()' style='display:none'>
+    <?php require_once $this->main_layouts . "header.phtml"; ?>
+    <div id="wrapper">
+        <?php require_once $this->main_layouts . "sidebar.phtml"; ?>
+        <div id="content" class="page-content clearfix">
+            <div class="contentwrapper">
+                <div class="heading">
+                    <h3><?= $this->module_title; ?></h3>
+                    <ul class="breadcrumb">
+                        <li>Você está aqui:</li>
+                        <li> <a href="#" class="tip" title="Painel"> <i class="s16 icomoon-icon-screen-2"></i> </a> <span class="divider"> <i class="s16 icomoon-icon-arrow-right-3"></i> </span> </li>
+                        <li> <a class="tip" title="<?= $this->module_title; ?>" href="<?= $this->module_link; ?>"> <i class="s16 <?= $this->module_icon; ?>"></i> </a> </li>
+                        <span class="divider">
+                            <i class="s16 icomoon-icon-arrow-right-3"></i>
+                        </span>
+                        <li class="active">Registro</li>
+                    </ul>
+                </div>
+                <form class="form-horizontal group-border">
+                    <input type="hidden" name="id" value="<?= $this->id; ?>" />
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="panel panel-default toggle <?= $this->whatsappComProblema() ? 'panel-danger' : ''; ?>" painel-whats>
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">WhatsApp <?= $this->whatsappComProblema() ? '<i class="fa fa-exclamation"></i>' : ''; ?> </h4>
+                                </div>
+                                <div class="panel-body">
+                                    <div class="form-group">
+                                        <label class="col-lg-2 col-md-3 control-label">Ativo? </label>
+                                        <div class="col-lg-10 col-md-9">
+                                            <div class="toggle-custom">
+                                                <label class="toggle" data-on="SIM" data-off="NÂO">
+                                                    <input type="checkbox" ng-model='ctrl.data.stats' ng-true-value="1" ng-false-value="0">
+                                                    <span class="button-checkbox"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label">Tipo
+                                            <i class="fa fa-question-circle cursor" data-container="body" data-toggle="popover" data-placement="top" data-content="
+                                            <b>LeadsZapp</b> integração fornecida pela <a target='_blank' href='https://lzphub.com'>https://lzphub.com</a> <br>
+                                            <b>Ileva</b> integração fornecida pela Ileva"></i>
+                                        </label>
+                                        <div class="col-lg-10">
+                                            <select class="form-control" ng-model='ctrl.data.tipo' ng-change="ctrl.changeTipo()">
+                                                <option value=''>Selecione...</option>
+                                                <option value="leadszapp">LeadsZapp</option>
+                                                <option value="ileva">Ileva</option>
+                                                <option value="zaptechs">ZapTechs</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" ng-if="ctrl.data.tipo == 'ileva'">
+                                        <?php if ((bool)$this->adm_cliente['whatsapp_url']) : ?>
+                                            <label class="col-lg-2 control-label" for="sga_token"> Status
+                                                <br><small>
+                                                    <a status-whats-clear class="btn btn-xs btn-default pull-right" ng-click="ctrl.conectar()" style="display:none">Reconectar</a>
+                                                </small>
+                                                <br>
+                                            </label>
+                                            <div class="col-lg-5" style="margin-top:10px">
+                                                <div id="qrcode_status"></div>
+                                                <div id="qrcode"></div>
+                                            </div>
+                                            <div class="col-lg-5" style="margin-top:10px">
+                                            <div class="info-device">
+                                                <div>
+                                                </div>
+                                            </div>
+                                            </div>
+                                        <?php else : ?>
+                                            <label class="col-lg-2 control-label"></label>
+                                            <p class="col-lg-10">Solicite uma integração de whatsapp com nossa equipe de suporte ou use outro tipo de integração</p>
+                                        <?php endif ?>
+                                    </div>
+                                    <?php if ($this->registro['tipo'] == 'ileva' && count($this->fila_ileva ?: []) > 0) : ?>
+                                        <div class="form-group" status-whats-clear style="display:none">
+                                            <small class="col-lg-2 col-md-3 control-label"><?= count($this->fila_ileva ?: []) ?> mensagens na fila </small>
+                                            <div class="col-lg-10 col-md-9">
+                                                <button type="button" class="btn btn-default btn-xs mr5 mb10" ng-click="ctrl.limparFila()">Limpar fila</button>
+                                            </div>
+                                        </div>
+                                    <?php endif ?>
+                                    <div class="form-group" ng-if="ctrl.data.tipo == 'zaptechs'">
+                                        <label class="col-lg-2 control-label" for="sga_token">
+                                            Conectar
+                                            <br>
+                                        </label>
+
+                                        <div class="col-lg-10">
+                                            <a status-whats-clear class="btn btn-xs btn-default" id="btn-Zaptechs-Connect" ng-click="ctrl.conectarZapTechs(ctrl.data.instanceName, ctrl.data.description)">Conectar</a>
+                                        </div>
+
+                                        <div class="col-lg-10">
+                                            <div class="row" id="instanciasContainer"></div>
+                                            <div class="row" id="statusZapTechs"></div>
+                                            <div class="row" id="qrcode_status"></div>
+                                            <div class="info-device-zaptechs" style="display: none">             
+                                                <div class="col-lg-2">
+                                                    <img id="foto" class="rounded-circle img-thumbnail" alt="Foto do WhatsApp">
+                                                </div>                    
+                                                <div id="infouserconected" class="col-lg-3" style="padding-top: 28px;">     
+                                                    <p><b>Nome:</b> <span id="nome" ng-model="ctrl.data.usuario"></span></p>
+                                                    <p><b>Telefone:</b> <span id="telefone" ng-model="ctrl.data.telefone"></span></p>                                               
+                                                    <p id="qrcode_status_conectado"></p>                       
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <?php if ($this->registro['tipo'] == 'zaptechs' && count($this->fila_zaptechs ?: []) > 0) : ?>
+                                        <div class="form-group" status-whats-clear style="display:none">
+                                            <small class="col-lg-2 col-md-3 control-label"><?= count($this->fila_zaptechs ?: []) ?> mensagens na fila </small>
+                                            <div class="col-lg-10 col-md-9">
+                                                <button type="button" class="btn btn-default btn-xs mr5 mb10" ng-click="ctrl.limparFila()">Limpar fila</button>
+                                            </div>
+                                        </div>
+                                    <?php endif ?>
+                                    <div class="form-group" ng-if="ctrl.data.tipo == 'leadszapp'">
+                                        <label class="col-lg-2 control-label">Token <i class="fa fa-question-circle cursor" data-container="body" data-toggle="popover" data-placement="top" data-content="Para obter acesse https://hub.leadszapp.com/profile" title="" data-original-title="" ng-popover></i> </label>
+                                        <div class="col-lg-10">
+                                            <input class="form-control" ng-model='ctrl.data.leadszapp_token' />
+                                        </div>
+                                    </div>
+                                    <div class="form-group" ng-if="ctrl.data.tipo == 'leadszapp'">
+                                        <label class="col-lg-2 control-label" for="sga_token"> Id bot
+                                            <i class="fa fa-question-circle cursor" data-container="body" data-toggle="popover" data-placement="top" data-content="Cole apenas o numero do id do bot" title="" data-original-title="" ng-popover></i></label>
+                                        <div class="col-lg-10">
+                                            <input class="form-control" numbers-only ng-model='ctrl.data.leadszapp_bot' />
+                                        </div>
+                                    </div>
+                                    <div class="form-group" ng-if="ctrl.data.tipo == 'business'">
+                                        <label class="col-lg-2 control-label">Token </label>
+                                        <div class="col-lg-10">
+                                            <input class="form-control" ng-model='ctrl.data.business_token' />
+                                        </div>
+                                    </div>
+                                    <div class="form-group" ng-if="ctrl.data.tipo == 'business'">
+                                        <label class="col-lg-2 control-label" for="sga_token">Identificador do telefone</label>
+                                        <div class="col-lg-10">
+                                            <input class="form-control" numbers-only ng-model='ctrl.data.business_id' />
+                                        </div>
+                                    </div>
+                                    <div class="form-group" ng-if="ctrl.data.tipo == 'leadszapp' || ctrl.data.tipo == 'business'">
+                                        <label class="col-lg-2 control-label">Aparelho</label>
+                                        <div class="col-lg-10">
+                                            <input class="form-control" ng-model='ctrl.data.usuario' />
+                                        </div>
+                                    </div>
+                                    <div class="form-group" ng-if="ctrl.data.tipo == 'leadszapp' || ctrl.data.tipo == 'business'">
+                                        <label class="col-lg-2 control-label">Telefone</label>
+                                        <div class="col-lg-10">
+                                            <input class="form-control" ng-model='ctrl.data.telefone' />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 col-md-3 control-label">Módulos</label>
+                                        <div class="col-lg-10 col-md-9">
+                                            <div class="checkbox-custom checkbox-inline" ng-repeat="row in ctrl.modulos">
+                                                <input type="checkbox" id="checkbox{{$index}}" ng-checked="ctrl.data.modulos[row]" onchange="changeModulos(this)" name="{{row}}">
+                                                <label for="checkbox{{$index}}">{{row}}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php if ($this->permissions($this->permissao_ref, 'editar')) : ?>
+                        <div class="row">
+                            <div class="form-group">
+                                <div class="col-lg-offset-2 col-lg-10">
+                                    <button ng-click='ctrl.submitForm()' class="btn btn-info">Salvar</button>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                </form>
+            </div>
+        </div>
+        <?php require_once $this->main_layouts . "footer.phtml"; ?>
+    </div>
+    <?php require_once $this->main_layouts . "plugins.phtml"; ?>
+    <script src='https://cdn.ileva.com.br/static/assets/socket.io/socket.io.4.0.1.js'></script>
+    <script src="https://cdn.socket.io/4.1.2/socket.io.min.js"></script>
+    <script src='https://cdn.ileva.com.br/static/assets/qrcodejs/qrcode.js'></script>
+    <?php
+    use adm\classes\{Util}; ?>
+    <script type="text/javascript">
+        angular.module('nova', ['novaServices'])
+            .controller('EditCtrl', function($scope, $http, $sce, NS, $window) {
+                this.data = <?= Util::json_encode($this->registro); ?>;
+                this.modulos = ['Comercial', 'Eventos', 'Financeiro'];
+                var socket;
+                this.onInit = () => {
+                    $('body').show();
+                    this.changeTipo();
+                }
+                this.conectarZapTechs = async (instanceName, description) => {
+                    try {
+                        const nomeInstancia = '<?= $this->_cliente_ ?>'; // Substitua pelo nome desejado
+                        const responseCreateInstance = await $http({
+                            method: 'POST',
+                            url: 'http://marketingcomunica.com.br:8084/instance/create',
+                            headers: {
+                                'accept': 'application/json',
+                                'apikey': 'Negaazul1!',
+                                'Content-Type': 'application/json'
+                            },
+                            data: {
+                                "instanceName": nomeInstancia,
+                            }
+                        });
+                        // Se a criação da instância for bem-sucedida
+                        if (responseCreateInstance.status === 201) {
+                            const { name, token } = responseCreateInstance.data;
+                            // Agora, faça a segunda requisição usando o nome da instância e o token
+                            const responseConnectInstance = await $http({
+                                method: 'GET',
+                                url: `http://marketingcomunica.com.br:8084/instance/connect/${name}`,
+                                headers: {
+                                    'accept': 'application/json',
+                                    'Authorization': `Bearer ${responseCreateInstance.data.Auth.token}`
+                                }
+                            });
+                            // Se a segunda requisição for bem-sucedida
+                            if (responseConnectInstance.status === 200) {
+                                // Faça algo com a resposta, se necessário
+                                console.log('Tudo certo na criação da Instancia:', responseConnectInstance.data);
+                            } else {
+                                console.error('Erro na criação da Instancia:', responseConnectInstance);
+                            }
+                        } else {
+                            console.error('Erro ao conectar:', responseCreateInstance);
+                        }
+                    } catch (error) {
+                        // Lida com erros
+                        console.error('Erro geral:', error);
+                    }
+                };                
+                this.authZapTechs = () => {
+                const socket = io('http://marketingcomunica.com.br:8000');
+                const instanciasContainer = document.getElementById('instanciasContainer');
+                const nomeInstancia = '<?= $this->_cliente_ ?>'; // Substitua pelo nome desejado
+                const buttonConnect = document.getElementById('btn-Zaptechs-Connect');
+                // Crie um objeto para armazenar as informações da instância
+                const instancias = {};
+                instancias[nomeInstancia] = document.createElement('div');
+                instancias[nomeInstancia].classList.add('col-md-4', 'mb-4');
+                // Crie um card Bootstrap
+                const card = document.createElement('div');
+                card.classList.add('card');
+                // Adicione a instância card ao contêiner de instâncias
+                instanciasContainer.appendChild(instancias[nomeInstancia]);
+                instancias[nomeInstancia].appendChild(card);
+                //socket para receber qrcode
+                socket.on('conectarQrZapTechs', function(data) {
+                    console.log('Dados SOCKET:', data);
+                    // Verifique se a mensagem do socket contém o Base64 da imagem
+                    if (data) {
+                        // Obtenha a instância existente
+                        const inst = instancias[nomeInstancia].querySelector('.card');
+                        // Crie uma nova imagem para cada instância
+                        const imgElement = document.createElement('img');
+                        imgElement.id = 'qrcodeImage';
+                        imgElement.src = data.Base64QR;
+                        imgElement.classList.add('card-img-top');
+                        // Quando a imagem for carregada, remova a classe hidden
+                        imgElement.onload = () => {
+                            imgElement.classList.remove('hidden');
+                            
+                            // Oculte o input buttonConnect quando o QR code for apresentado
+                            buttonConnect.style.display = 'none';
+                        };
+                        // Crie um card body
+                        const cardBody = document.createElement('div');
+                        cardBody.classList.add('card-body');
+                        // Adicione os elementos ao card body
+                        cardBody.appendChild(imgElement);
+                        // Limpe o conteúdo existente e adicione o novo card body ao card
+                        inst.innerHTML = '';
+                        inst.appendChild(cardBody);
+                        //informa abaixo do qrcode
+                        $('#qrcode_status').html(`
+                            <p><b>Seu WhatsApp está offline, siga os passos para autenticar.</b></p>
+                            <p>1º Abra o WhatsApp em seu telefone.</p>
+                            <p>2º Toque em configurações, aparelhos conectados e conectar aparelho.</p>
+                            <p>3º Aponte seu telefone para esta tela para capturar o código.</p><br>
+                        `);
+                    }
+                });
+                socket.on('capturaAparelhoConectado', function(data) {
+                    console.log(data);
+                    console.log('authenticated');
+                    // Oculte o QR code
+                    $('#qrcodeImage').hide();                    
+                    $('#qrcode_status').hide();
+                    $('#statusZapTechs').hide();
+                    $('[painel-whats]').removeClass('panel-danger');
+                    $('.notification.red').remove();
+                    $("#qrcode_status_conectado").html("Seu WhatsApp está <b>online</b>!");
+                    // Formate o número para o formato pt-br sem a parte "@s.whatsapp.net"
+                    const numeroFormatado = formatarNumero(data.ownerJid);
+                    // Exiba as informações do número conectado
+                    $("#nome").text(data.Nome);
+                    $("#telefone").text(numeroFormatado);
+                    // Atribua a foto ao elemento img e aplique as classes Bootstrap
+                    $("#foto").attr("src", data.profilePicUrl).addClass("rounded-circle img-thumbnail");
+                    // Exiba a div .info-device
+                    $('.info-device-zaptechs').show();
+                    $('[painel-whats]').addClass('panel-success');
+                });
+                socket.on('aparelhoDesconectado', function(data) { 
+                    console.log('desconectado');                    
+                });
+                // Função para formatar o número para o formato pt-br sem a parte "@s.whatsapp.net"
+                function formatarNumero(numeroCompleto) {
+                    // Extraia apenas os dígitos do número
+                    const numeroSemSufixo = numeroCompleto.replace(/@s.whatsapp.net/g, '');
+                    const numeroSemPrefixo = numeroSemSufixo.startsWith('55') ? numeroSemSufixo.slice(2) : numeroSemSufixo;
+                    return `(${numeroSemPrefixo.slice(0, 2)}) ${numeroSemPrefixo.slice(2, 6)}-${numeroSemPrefixo.slice(6)}`;
+                }
+                // Verifica a conexão da instância
+                $http({
+                    method: 'GET',
+                    url: `http://marketingcomunica.com.br:8084/instance/fetchInstances?instanceName=${nomeInstancia}`,
+                    headers: {
+                        'accept': 'application/json',
+                        'apikey': 'Negaazul1!'
+                    }
+                }).then((response) => {
+                    const instances = response.data;
+                    console.log(instances);
+                    const connectionStatus = instances[0].connectionStatus;                    
+                    if (connectionStatus == 'ONLINE') {
+                        this.data.usuario = instances[0].name;
+                        console.log('online')
+                        buttonConnect.style.display = 'none';
+                        $('[painel-whats]').addClass('panel-success');
+                        $('#statusZapTechs').hide();
+                        $('.info-device-zaptechs').show();
+                        $("#nome").text(instances[0].name);
+                        const numeroFormatado = formatarNumero(instances[0].ownerJid);     
+                        this.data.telefone = numeroFormatado;                 
+                        $("#telefone").text(numeroFormatado);
+                        $("#foto").attr("src", instances[0].profilePicUrl).addClass("rounded-circle img-thumbnail");
+                        $("#qrcode_status_conectado").html("Seu WhatsApp está <b>online</b>!");                        
+                    } else if (connectionStatus == 'OFFLINE') {
+                        console.log('off');
+                        $('[painel-whats]').addClass('panel-danger');
+                        $http({
+                            method: 'GET',
+                            url: 'http://marketingcomunica.com.br:8084/instance/connect/' + instances[0].name,
+                            headers: {
+                                'accept': 'application/json',
+                                'Authorization': 'Bearer ' + instances[0].Auth.token
+                            }
+                        }).then((responseConnectInstance) => {
+                            console.log('Qr Code Criado', responseConnectInstance);
+                        }).catch((error) => {
+                            console.error(error);
+                        });
+                        $('#statusZapTechs').show();
+                    }
+                }).catch((error) => {
+                    console.error('A instancia não existe');
+                });
+                };           
+                this.reconectar = async () => {
+                    if (!socket) return;
+                    // if (!confirm('Apagar dados e autenticar novamente?')) return;
+                    socket.emit('limpar_dados', true);
+                    socket.disconnect();
+                    $("#qrcode_status").html("Verificando status do WhatsApp, aguarde...");
+                    $("#qrcode").html("");
+                    await new Promise((resolve => setTimeout(resolve, 2000)));
+                    authWhats();
+                }
+                this.limparFila = async () => {
+                    if (!confirm('Deseja limpar a fila de mensagens?')) return;
+                    await NS.actionHandler($http.delete("<?= $this->getPath(); ?>/limpaFila"));
+                    location.reload();
+                }
+                this.authWhats = () => {
+                    socket = io.connect('<?= $this->adm_cliente['whatsapp_url'] ?>', {
+                        "path": "/whatsapp/auth",
+                        "transports": ["websocket"]
+                    });
+                    socket.on("connect", function(data) {
+                        // console.log(`%c WhatsApp ${socket.id || 'sem id'}`, 'color : #84a758');
+                        $("#qrcode_status").html("Verificando status do WhatsApp, aguarde...");
+                        let qrcode = new QRCode(document.getElementById("qrcode"), "");
+                        $('[status-whats-clear]').show();
+                        socket.on('qr', function(data) {
+                            console.log('qr');
+                            $('#qrcode_status').html(`
+                            <p><b>Seu WhatsApp está offline, siga os passos para autenticar.</b></p>
+                            <p>1º Abra o WhatsApp em seu telefone.</p>
+                            <p>2º Toque em configurações, aparelhos conectados e conectar aparelho.</p>
+                            <p>3º Aponte seu telefone para esta tela para capturar o código.</p><br>
+                            `);
+                            qrcode.clear();
+                            qrcode.makeCode(data);
+                        });
+                        socket.on('infoAndDesconect', function(data) {
+                            console.log('infoAndDesconect');
+                            $('#qrcode_status').html(data);
+                            $("#qrcode").html("");
+                            socket.disconnect();
+                            socket = null;
+                        });
+                        socket.on('loading_screen', (data) => {
+                            console.log('LOADING SCREEN', data.percent, data.message);
+                            $('#qrcode_status').html((data.percent == 100 ? `Processando. Por favor aguarde...` : `Carregando suas conversas... ${data.percent}%`));
+                            $("#qrcode").html("");
+                            $('[status-whats-clear]').hide();
+                        });
+                        socket.on('authenticated', function(data) {
+                            console.log('authenticated');
+                            $('[painel-whats]').removeClass('panel-danger');
+                            $('.notification.red').remove();
+                            $("#qrcode_status").html("Seu WhatsApp esta <b>online</b>!");
+                            $("#qrcode").html("");
+                            $(".info-device div").html(`<p><b>Nome:</b> ${data.usuario} - <b>Telefone:</b> ${data.telefone}</p>`);
+                            socket.disconnect();
+                            socket = null;
+                            $('[painel-whats]').addClass('panel-success');
+                        });
+                        socket.on('auth_failure', function() {
+                            console.log('auth_failure');
+                            $("#qrcode_status").html("Houve um problema com a autenticação. Tente novamente.");
+                            $("#qrcode").html("");
+                            socket.disconnect();
+                            socket = null;
+                        });
+                        socket.emit('setcontext', {
+                            bot: <?= $this->id ?>,
+                            access_company: "<?= $this->_cliente_ ?>",
+                            usuario: "<?= $_SESSION["admin_nome"] ?>",
+                        });
+                    });
+                    socket.on("disconnect", function(data) {
+                        socket = null;
+                        $('[status-whats-clear]').hide();
+                    });
+                };
+                
+                this.submitForm = async () => {
+                    await NS.actionHandler($http.post("<?= $this->getPath(); ?>/saveWhats", this.data));
+                    location.href = retorno;
+                }
+                $window.changeModulos = (ev) => {
+                    this.data.modulos[ev.name] = ev.checked;
+                }
+                this.changeTipo = async () => {
+                    if (socket) socket.disconnect();
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    if (this.data.tipo == 'ileva') {
+                        this.authWhats();
+                    }
+                    if (this.data.tipo == 'zaptechs') {
+                        this.authZapTechs();
+                    }
+                    console.log(this.data);
+                }
+            })
+    </script>
+</body>
+
+</html>

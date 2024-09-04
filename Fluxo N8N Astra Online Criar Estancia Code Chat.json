@@ -1,0 +1,241 @@
+{
+  "name": "Criação de QR Code Chat 2023",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "97f860cf-1373-448a-a4f0-7bd55f1de7bf",
+      "name": "When clicking \"Execute Workflow\"",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        600,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "urlBase",
+              "value": "http://135.181.41.213:8085"
+            },
+            {
+              "name": "apiKey",
+              "value": "t8OOEeISKzpmc3jjcMqBWYSaJsafdefer"
+            },
+            {
+              "name": "instanceName",
+              "value": "Codechatyoutube2"
+            },
+            {
+              "name": "numero",
+              "value": "55169981652210"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ca23f37b-7f22-4974-bf95-daa83f5400a5",
+      "name": "PARAMETROS CODECHAT",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        800,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $node[\"PARAMETROS CODECHAT\"].json.urlBase }}/instance/create",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $json.apiKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={  \"instanceName\": \"{{ $node[\"PARAMETROS CODECHAT\"].json[\"instanceName\"] }}\"}",
+        "options": {}
+      },
+      "id": "fd42ea86-f9fe-4a63-81d2-996a44700513",
+      "name": "CRIAR INSTANCIA",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        1000,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $node[\"PARAMETROS CODECHAT\"].json.urlBase }}/instance/connect/{{ $node[\"PARAMETROS CODECHAT\"].json[\"instanceName\"] }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $node[\"CRIAR INSTANCIA\"].json[\"hash\"][\"jwt\"] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "bff0c9c4-97d9-47ee-bba3-b8b53d15cabb",
+      "name": "CRIAR QR CODE",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        1200,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "base64",
+              "value": "={{ $json.base64.slice(22) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "274ee3c5-6e1a-4525-8718-ef593531c3b8",
+      "name": "CONFIGURA QR CODE",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        1420,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "jsonToBinary",
+        "convertAllData": false,
+        "sourceKey": "base64",
+        "options": {
+          "dataIsBase64": true,
+          "mimeType": "image/png"
+        }
+      },
+      "id": "f0098671-f4a7-4442-8cba-97089b759248",
+      "name": "TRANSFORMA EM IMAGEM",
+      "type": "n8n-nodes-base.moveBinaryData",
+      "typeVersion": 1,
+      "position": [
+        1640,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $node[\"PARAMETROS CODECHAT\"].json.urlBase }}/message/sendButtons/{{ $node[\"PARAMETROS CODECHAT\"].json[\"instanceName\"] }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $node[\"CRIAR INSTANCIA\"].json[\"hash\"][\"jwt\"] }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"number\": \"5516981652210\",\n  \"options\": {\n    \"delay\": 1200\n  },\n  \"buttonMessage\": {\n    \"title\": \"ASTRA ONLINE BOTÕES NO WHATSAPP\",\n    \"description\": \"Aproveite nosso conteudo exclusivo\",\n    \"footerText\": \"Raphael Popiolek\",\n    \"buttons\": [\n      {\n        \"buttonText\": \"ASSISTIR VÍDEO\",\n        \"buttonId\": \"0\"\n      },\n      {\n        \"buttonText\": \"INSCREVA-SE\",\n        \"buttonId\": \"1\"\n      },\n      {\n        \"buttonText\": \"DA LIKE\",\n        \"buttonId\": \"2\"\n      },\n      {\n        \"buttonText\": \"COMPARTILHAR\",\n        \"buttonId\": \"3\"\n      }\n    ],\n    \"mediaMessage\": {\n      \"mediatype\": \"image\",\n      \"fileName\": \"Tab-youtube.jpg\",\n      \"media\": \"http://astraonline.com.br/wp-content/uploads/2023/03/Tab-youtube.jpg\"\n    }\n  }\n}",
+        "options": {}
+      },
+      "id": "7194843b-413b-494e-990c-6aae2c8d82ca",
+      "name": "ENVIAR MENSAGEM COM BOTAO",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        1180,
+        700
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking \"Execute Workflow\"": {
+      "main": [
+        [
+          {
+            "node": "PARAMETROS CODECHAT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PARAMETROS CODECHAT": {
+      "main": [
+        [
+          {
+            "node": "CRIAR INSTANCIA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRIAR INSTANCIA": {
+      "main": [
+        [
+          {
+            "node": "CRIAR QR CODE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRIAR QR CODE": {
+      "main": [
+        [
+          {
+            "node": "CONFIGURA QR CODE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CONFIGURA QR CODE": {
+      "main": [
+        [
+          {
+            "node": "TRANSFORMA EM IMAGEM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "942b024f-8a9a-4ee9-9a5a-80f9f8a8ef22",
+  "id": "30",
+  "meta": {
+    "instanceId": "aa71a36f95dc8240ac0583243847603f3f2f3aa218942f1035579c9bc86dcce2"
+  },
+  "tags": [
+    {
+      "createdAt": "2023-03-24T22:22:51.896Z",
+      "updatedAt": "2023-03-24T22:22:51.896Z",
+      "id": "3",
+      "name": "Astra Online"
+    }
+  ]
+}
